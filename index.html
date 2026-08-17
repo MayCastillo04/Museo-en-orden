@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#183B66">
+<title>Museo en orden — CREA-J 2026</title>
+<style>
+:root{
+  --navy:#183B66; --blue:#2E5D8A; --gold:#C69214; --cream:#F8F1DF;
+  --ink:#1e2a38; --green:#2E7D32; --red:#A33A32; --white:#fff;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; font-family:Georgia, "Times New Roman", serif;
+  color:var(--ink); background:linear-gradient(135deg,#eef4f9,#fff);
+}
+header{
+  background:var(--navy); color:white; padding:22px 18px; text-align:center;
+  border-bottom:8px solid var(--gold);
+}
+header .eyebrow{font-family:Arial,sans-serif; letter-spacing:2px; font-size:.8rem; opacity:.9}
+h1{margin:7px 0 3px;font-size:clamp(1.8rem,4vw,3rem)}
+.subtitle{font-family:Arial,sans-serif;margin:0;opacity:.92}
+.wrap{max-width:1180px;margin:22px auto;padding:0 16px}
+.instructions{
+  background:white;border:2px solid #d9c27b;border-radius:16px;padding:15px 18px;
+  box-shadow:0 8px 22px #183b6615;margin-bottom:18px;font-family:Arial,sans-serif;
+}
+.instructions strong{color:var(--navy)}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between;align-items:center;margin-bottom:14px}
+button{
+  border:0;border-radius:10px;padding:10px 15px;font-weight:700;cursor:pointer;
+  font-family:Arial,sans-serif;
+}
+#reset{background:var(--navy);color:white}
+#score{font-family:Arial,sans-serif;font-weight:700;color:var(--navy)}
+.board{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px;
+}
+.person{
+  background:var(--cream);border:2px solid var(--gold);border-radius:14px;
+  overflow:hidden;box-shadow:0 7px 18px #183b6618;
+}
+.person-head{background:var(--navy);color:white;padding:10px;text-align:center}
+.person-head h2{font-size:1rem;margin:0 0 3px}
+.person-head small{font-family:Arial,sans-serif;opacity:.9}
+.dropzone{
+  min-height:100px;padding:10px;display:grid;gap:8px;grid-template-columns:1fr 1fr;
+  background:linear-gradient(#fffdf7,#f5ead0);
+}
+.slot{
+  border:2px dashed #b8a36a;border-radius:9px;min-height:55px;padding:7px;
+  display:flex;align-items:center;justify-content:center;text-align:center;
+  font-family:Arial,sans-serif;font-size:.78rem;color:#6e654f;background:#fff9;
+}
+.slot.filled{border-style:solid;color:var(--ink);background:white}
+.slot.correct{border-color:var(--green);background:#edf7ee}
+.slot.wrong{border-color:var(--red);background:#fff0ee}
+.slot button{background:none;padding:0;font-size:1rem}
+.icon-mini{font-size:1.5rem;display:block;margin-bottom:2px}
+.bank-section{
+  display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px;
+}
+.bank{
+  background:white;border-radius:14px;padding:15px;border:1px solid #d8dde4;
+  box-shadow:0 7px 18px #183b6612;
+}
+.bank h3{margin:0 0 11px;color:var(--navy);font-size:1.1rem}
+.items{display:flex;flex-wrap:wrap;gap:9px}
+.card{
+  user-select:none;cursor:grab;background:#f9fbfd;border:2px solid #9db0c2;
+  border-radius:11px;padding:9px 10px;min-width:130px;flex:1;font-family:Arial,sans-serif;
+  text-align:center;transition:.15s;position:relative;
+}
+.card:hover{transform:translateY(-2px);border-color:var(--gold)}
+.card.selected{outline:3px solid var(--gold);background:#fff9df}
+.card.used{opacity:.35;cursor:default}
+.card .symbol{font-size:1.8rem;display:block;margin-bottom:4px}
+.card small{display:block;font-size:.73rem;line-height:1.15}
+.tip{font-family:Arial,sans-serif;font-size:.78rem;color:#5d6773;margin-top:8px}
+#message{
+  display:none;background:#edf7ee;border:2px solid #73a876;color:#245d28;
+  padding:15px;border-radius:13px;font-family:Arial,sans-serif;font-weight:700;margin-bottom:20px;
+}
+@media(max-width:850px){
+ .board{grid-template-columns:repeat(2,1fr)}
+ .bank-section{grid-template-columns:1fr}
+}
+@media(max-width:560px){
+ .board{grid-template-columns:1fr}
+ .card{min-width:105px}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="eyebrow">CREA-J 2026 · CIUDADANÍA Y VALORES</div>
+  <h1>🏛️ Museo en orden</h1>
+  <p class="subtitle">Personajes históricos más relevantes de El Salvador</p>
+</header>
+
+<main class="wrap">
+  <section class="instructions">
+    <strong>¿Cómo jugar?</strong><br>
+    Relaciona cada personaje con <b>su ícono</b> y <b>su principal aporte</b>.
+    Puedes arrastrar las fichas hasta el personaje correspondiente o simplemente
+    tocar una ficha y luego el espacio donde quieres colocarla.
+  </section>
+
+  <div class="toolbar">
+    <div id="score">Aciertos: 0 de 12</div>
+    <button id="reset">↻ Reiniciar juego</button>
+  </div>
+
+  <div id="message">🎉 ¡Museo en orden! Has relacionado correctamente a los seis personajes.</div>
+
+  <section class="board" id="board"></section>
+
+  <section class="bank-section">
+    <div class="bank">
+      <h3>🖼️ Íconos</h3>
+      <div class="items" id="icons"></div>
+      <div class="tip">Arrastra o toca un ícono y luego toca el personaje.</div>
+    </div>
+    <div class="bank">
+      <h3>📜 Aportes</h3>
+      <div class="items" id="contributions"></div>
+      <div class="tip">Arrastra o toca un aporte y luego toca el personaje.</div>
+    </div>
+  </section>
+</main>
+
+<script>
+const people = [
+ {id:"delgado", name:"José Matías Delgado", role:"Independencia", icon:"🔔", iconLabel:"Campana y documento de independencia", contribution:"Impulsó la independencia de El Salvador y Centroamérica."},
+ {id:"romero", name:"Óscar Arnulfo Romero", role:"Religión", icon:"✝️", iconLabel:"Cruz, Biblia y símbolo de paz", contribution:"Defendió la paz, la justicia y la dignidad humana."},
+ {id:"lars", name:"Claudia Lars", role:"Literatura", icon:"📖", iconLabel:"Libro de poesía y pluma", contribution:"Enriqueció la literatura salvadoreña con su poesía."},
+ {id:"llort", name:"Fernando Llort", role:"Arte", icon:"🎨", iconLabel:"Paleta, pincel y arte salvadoreño", contribution:"Promovió el arte y la identidad cultural salvadoreña."},
+ {id:"lara", name:"Pancho Lara", role:"Música", icon:"🎸", iconLabel:"Guitarra y notas musicales", contribution:"Preservó y difundió el folclore salvadoreño con su música."},
+ {id:"magico", name:'Jorge “Mágico” González', role:"Deporte", icon:"⚽", iconLabel:"Balón y calzado de fútbol", contribution:"Llevó el fútbol salvadoreño al reconocimiento internacional."}
+];
+
+let selected = null;
+let placed = {icons:{}, contributions:{}};
+let correct = 0;
+
+function shuffle(arr){
+  return [...arr].sort(()=>Math.random()-0.5);
+}
+
+function render(){
+  const board=document.getElementById("board");
+  board.innerHTML="";
+  people.forEach(p=>{
+    const article=document.createElement("article");
+    article.className="person";
+    article.dataset.person=p.id;
+    article.innerHTML=`
+      <div class="person-head"><h2>${p.name}</h2><small>${p.role}</small></div>
+      <div class="dropzone">
+        <div class="slot" data-type="icon" data-person="${p.id}">Ícono</div>
+        <div class="slot" data-type="contribution" data-person="${p.id}">Aporte</div>
+      </div>`;
+    board.appendChild(article);
+  });
+  renderBank("icons","icon",people.map(p=>({id:p.id,text:p.iconLabel,symbol:p.icon})));
+  renderBank("contributions","contribution",people.map(p=>({id:p.id,text:p.contribution,symbol:"📜"})));
+  bindSlots();
+}
+
+function renderBank(target,type,data){
+  const el=document.getElementById(target); el.innerHTML="";
+  shuffle(data).forEach(x=>{
+    const d=document.createElement("div");
+    d.className="card"; d.draggable=true; d.dataset.type=type; d.dataset.id=x.id;
+    d.innerHTML=`<span class="symbol">${x.symbol}</span><small>${x.text}</small>`;
+    d.addEventListener("dragstart",()=>{selected={type,id:x.id,source:d};});
+    d.addEventListener("click",()=>{
+      if(d.classList.contains("used")) return;
+      document.querySelectorAll(".card.selected").forEach(c=>c.classList.remove("selected"));
+      selected={type,id:x.id,source:d}; d.classList.add("selected");
+    });
+    el.appendChild(d);
+  });
+}
+
+function bindSlots(){
+  document.querySelectorAll(".slot").forEach(slot=>{
+    slot.addEventListener("dragover",e=>e.preventDefault());
+    slot.addEventListener("drop",e=>{e.preventDefault(); place(slot);});
+    slot.addEventListener("click",()=>{if(selected) place(slot);});
+  });
+}
+
+function place(slot){
+  if(!selected || slot.classList.contains("filled")) return;
+  if(slot.dataset.type!==selected.type) return;
+
+  const ok=slot.dataset.person===selected.id;
+  slot.classList.add("filled",ok?"correct":"wrong");
+  const p=people.find(x=>x.id===selected.id);
+  slot.innerHTML=selected.type==="icon"
+    ? `<button title="Quitar"><span class="icon-mini">${p.icon}</span>${p.iconLabel}</button>`
+    : `<button title="Quitar">📜 ${p.contribution}</button>`;
+
+  selected.source.classList.remove("selected");
+  selected.source.classList.add("used");
+  selected.source.draggable=false;
+
+  if(ok){ correct++; }
+  updateScore();
+
+  slot.querySelector("button").addEventListener("click",(e)=>{
+    e.stopPropagation();
+    if(!ok) return;
+    selected=null;
+    const card=[...document.querySelectorAll(".card")].find(c=>c.dataset.type===slot.dataset.type && c.dataset.id===p.id);
+    if(card){card.classList.remove("used");card.draggable=true;}
+    slot.className="slot";
+    slot.textContent=slot.dataset.type==="icon"?"Ícono":"Aporte";
+    correct--; updateScore();
+  });
+
+  selected=null;
+
+  if(!ok){
+    setTimeout(()=>{
+      slot.className="slot";
+      slot.textContent=slot.dataset.type==="icon"?"Ícono":"Aporte";
+      const card=[...document.querySelectorAll(".card")].find(c=>c.dataset.type===slot.dataset.type && c.dataset.id===p.id);
+      if(card){card.classList.remove("used");card.draggable=true;}
+    },700);
+  }
+}
+
+function updateScore(){
+  document.getElementById("score").textContent=`Aciertos: ${correct} de 12`;
+  document.getElementById("message").style.display=correct===12?"block":"none";
+}
+
+document.getElementById("reset").addEventListener("click",()=>{
+  selected=null; placed={icons:{},contributions:{}}; correct=0;
+  document.getElementById("message").style.display="none"; render(); updateScore();
+});
+render(); updateScore();
+</script>
+</body>
+</html>
